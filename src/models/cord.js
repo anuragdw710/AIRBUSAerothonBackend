@@ -8,6 +8,14 @@ const cordSchema = new mongoose.Schema({
     y: {
         type: Number,
         required: true
+    },
+    weather: {
+        type: String,
+        default: 'good'
+    },
+    reserve: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
