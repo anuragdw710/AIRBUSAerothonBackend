@@ -7,7 +7,7 @@ const airplaneSchema = new mongoose.Schema({
         default: 'good'
     },
     position: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Cord'
     }
 }, { timestamps: true });

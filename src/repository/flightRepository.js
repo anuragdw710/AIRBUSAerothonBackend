@@ -9,6 +9,14 @@ class FlightRepository {
             throw error;
         }
     }
+    async getAll() {
+        try {
+            const response = await Flight.find({}).populate('reserveCord');
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
 
 
 }

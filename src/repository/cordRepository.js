@@ -9,6 +9,14 @@ class CordRepository {
             throw error;
         }
     }
+    async getAll() {
+        try {
+            const response = await Cord.find({});
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
 
 
 }

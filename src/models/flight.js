@@ -1,22 +1,29 @@
 const mongoose = require('mongoose');
-const Airport = require('./airport');
-const Cord = require('./cord');
+const Cord = require('./cord'); // Adjust the path as necessary
 
 const flightSchema = new mongoose.Schema({
     departureAirport: {
-        type: Schema.Types.ObjectId,
-        ref: 'Airport',
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Cord',
         required: true
     },
     destinationAirport: {
-        type: Schema.Types.ObjectId,
-        ref: 'Airport',
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Cord',
         required: true
     },
     reserveCord: [{
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Cord'
-    }]
+    }],
+    departureTime: {
+        type: Date,
+        required: true
+    },
+    destinationTime: {
+        type: Date,
+        required: true
+    }
 }, { timestamps: true });
 
 const Flight = mongoose.model('Flight', flightSchema);

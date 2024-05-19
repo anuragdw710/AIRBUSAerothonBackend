@@ -26,7 +26,23 @@ const createCord = async (req, res) => {
 
 }
 
+const getAllCords = async (req, res) => {
+    try {
+        const response = await cordService.getAll();
+        return res.status(200).json({
+            isSuccess: true,
+            response: response
+        });
+    } catch (error) {
+        return res.status(500).json({
+            isSuccess: false,
+            response: {},
+            err: error
+        });
+    }
+};
 
 module.exports = {
-    createCord
+    createCord,
+    getAllCords
 }

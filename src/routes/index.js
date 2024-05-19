@@ -11,5 +11,7 @@ router.post('/airport', AirportController.createAirport);
 router.post('/airplane', AirplaneController.createAirplane);
 router.post('/flight', FlightController.createflight);
 
+router.get('/cord', CordController.getAllCords);
+router.get('/flight', FlightController.getAllFlights);
 
 module.exports = router;

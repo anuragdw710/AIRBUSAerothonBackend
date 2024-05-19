@@ -31,8 +31,13 @@ Service:
 - Add cord [x]
 - Add airplane [x]
 
-- randomly update cord weather
-- check for avaibale route from one cord to dest cord
-- reserve cord
+- Get cord [x]
+- Get flight info [x]
+
+- Flight create-check for avaibale route from one cord to dest cord- if present return array
+- Start flght- unreserve corinate which are reserver by this flight in 2 sec and update cordinate of flight
+
 - check near by airport
-- unreverse cord as airplane passby
+
+- Randomly update cord weather
+- Randomly update plane health
