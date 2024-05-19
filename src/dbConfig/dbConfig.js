@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const MONGO_URL = 'mongodb://127.0.0.1:27017/aerothon';
+const MONGO_URL = 'mongodb+srv://dbUser:abcd1234@cluster0.of7edmv.mongodb.net/';
 const connect = async () => {
     await mongoose.connect(MONGO_URL);
 }
