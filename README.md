@@ -1,31 +1,33 @@
-DATABASE:
+## DATABASE:
 
-->airplane -
-id
-heath:
-cord-
+cord/Mess
 
-->flight
-id
-departure_cord
-destination_cord
-airplane_id
-cord=[]
+- cord[x,y]
+- weather
+- reserve
 
-->airport
-id
-name
-cord
+airplane
 
-->mess
-cord-reserve,weather
+- id,
+- heath:
+- cord[x,y]
+
+airport
+
+- id
+- cord[x,y]
+
+flight
+
+- id
+- departureAirportId
+- destinationAirportId
+- reserveCord=[]
 
 Service:
-->randomly update cord weather
--> check for avaibale route from one cord to dest cord
--> reserve cord
--> check near by airport
--> unreverse cord as airplane passby
 
-U4cieXxnl65p0M2V
-abcd@123
+- randomly update cord weather
+- check for avaibale route from one cord to dest cord
+- reserve cord
+- check near by airport
+- unreverse cord as airplane passby
