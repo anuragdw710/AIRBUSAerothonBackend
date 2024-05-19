@@ -26,6 +26,11 @@ flight
 
 Service:
 
+- Add airplane [x]
+- Add airport [x]
+- Add cord [x]
+- Add airplane [x]
+
 - randomly update cord weather
 - check for avaibale route from one cord to dest cord
 - reserve cord
