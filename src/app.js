@@ -18,6 +18,10 @@ app.use('/api', apiRoutes);
 app.listen(3000, async () => {
     console.log('Server started at 3000');
     await connect();
-
+    // await Cord.updateMany({},
+    //     {
+    //         reserve: false,
+    //     }
+    // )
     console.log('Db connected');
 })

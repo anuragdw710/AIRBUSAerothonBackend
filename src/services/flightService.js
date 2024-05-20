@@ -132,6 +132,8 @@ class FlightService {
 
                     const reservedCords = await this.reserveCords(newPath, currentCoord, goalCoord);
                     flight.reserveCord = reservedCords.map(cord => cord._id);
+                    reserveCord = flight.reserveCord;
+
                     await flight.save();
                     currentIndex = 0;
                 } else {

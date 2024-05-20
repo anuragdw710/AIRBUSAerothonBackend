@@ -90,7 +90,7 @@ async function createGridFromDatabase(cords) {
         if (!grid[cord.x]) {
             grid[cord.x] = [];
         }
-        grid[cord.x][cord.y] = cord.reserve ? 1 : 1;
+        grid[cord.x][cord.y] = cord.reserve || cord.weather != "good" ? 0 : 1;
     });
 
     return grid;
