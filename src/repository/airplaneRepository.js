@@ -9,6 +9,13 @@ class AirplaneRepository {
             throw error;
         }
     }
+    async findByIdAndUpdate(id, data) {
+        try {
+            await Airplane.findByIdAndUpdate(id, data);
+        } catch (error) {
+            throw error;
+        }
+    }
 
 
 }

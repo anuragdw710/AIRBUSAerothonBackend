@@ -36,6 +36,13 @@ class CordRepository {
             throw error;
         }
     }
+    async findByIdAndUpdate(id, data) {
+        try {
+            await Cord.findByIdAndUpdate(id, data);
+        } catch (error) {
+            throw error;
+        }
+    }
 
 }
 

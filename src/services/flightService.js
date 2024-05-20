@@ -1,6 +1,8 @@
 const FlightRepository = require('../repository/flightRepository');
 const CordRepository = require('../repository/cordRepository');
+const AirplaneRepository = require('../repository/airplaneRepository');
 const Cord = require('../models/cord');
+const Airplane = require('../models/airplane');
 const { astar, createGridFromDatabase } = require('../utiles/astar');
 
 
@@ -9,6 +11,7 @@ class FlightService {
     constructor() {
         this.flightRepository = new FlightRepository();
         this.cordRepository = new CordRepository();
+        this.AirplaneRepository = new AirplaneRepository();
         this.runningFlights = {};
     }
 
