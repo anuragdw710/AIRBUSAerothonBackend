@@ -9,6 +9,14 @@ class AirportRepository {
             throw error;
         }
     }
+    async getAll() {
+        try {
+            const response = await Airport.find({}).populate('airportCord');
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
 
 
 }
