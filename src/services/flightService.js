@@ -50,17 +50,17 @@ class FlightService {
             if (path.length === 0) {
                 throw "No path found";
             }
-            const reservedCords = await reserveCords(path, start, goal);
-            console.log(reservedCords);
-            // const flightData = {
-            //     departureAirport: startId,
-            //     destinationAirport: goalId,
-            //     reserveCord: reservedCords.map(cord => cord._id), // Assuming reserveCords returns objects with _id field
-            //     departureTime: new Date(depTime),
-            //     destinationTime: new Date(arrTime)
-            // };
+            const reservedCords = await this.reserveCords(path, start, goal);
+            // console.log(reservedCords);
+            const flightData = {
+                departureAirport: startId,
+                destinationAirport: goalId,
+                reserveCord: reservedCords.map(cord => cord._id), // Assuming reserveCords returns objects with _id field
+                departureTime: new Date(depTime),
+                destinationTime: new Date(arrTime)
+            };
             // console.log(flightData, ' flightData');
-            // const flight = await this.flightRepository.create(flightData);
+            const flight = await this.flightRepository.create(flightData);
 
             return flight;
         } catch (error) {
