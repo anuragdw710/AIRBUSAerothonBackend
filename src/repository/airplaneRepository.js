@@ -16,6 +16,15 @@ class AirplaneRepository {
             throw error;
         }
     }
+    async findOne(id) {
+        try {
+            const response = await Airplane.findOne(id);
+            return response
+        } catch (error) {
+            throw error;
+        }
+
+    }
 
 
 }
