@@ -25,6 +25,14 @@ class FlightRepository {
             throw error;
         }
     }
+    async delete(query) {
+        try {
+            const response = await Flight.deleteOne(query);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
 
 
 }

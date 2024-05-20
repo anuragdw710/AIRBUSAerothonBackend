@@ -18,7 +18,7 @@ class FlightService {
 
     async reserveCords(path, start, goal) {
         const reservedCords = [];
-        console.log(path, " ", start, " ", goal);
+        // console.log(path, " ", start, " ", goal);
         for (const coord of path) {
             if (
                 !(
@@ -50,7 +50,7 @@ class FlightService {
             const cords = await this.cordRepository.getAll();
             const grid = await createGridFromDatabase(cords);
             const path = astar(startCords, goalCords, grid);
-            console.log(path);
+            // console.log(path);
             if (path.length === 0) {
                 throw "No path found";
             }
@@ -78,25 +78,30 @@ class FlightService {
             return response;
         } catch (error) {
             throw error;
+
         }
     }
     async startFlight(flightId) {
         try {
-            const flight = await this.flightRepository.findOne({ _id: flightId }).populate('reserveCord');
+            const flight = await this.flightRepository.findOne({ _id: flightId });
             if (!flight) throw new Error('Flight not found');
+
             const { reserveCord, planeId } = flight;
+            console.log(reserveCord);
             let currentIndex = 0;
 
             this.runningFlights[flightId] = setInterval(async () => {
                 if (currentIndex >= reserveCord.length) {
                     clearInterval(this.runningFlights[flightId]);
                     delete this.runningFlights[flightId];
+                    await this.flightRepository.delete({ _id: flightId });
                     return;
                 }
 
                 const nextCord = reserveCord[currentIndex];
+                console.log(nextCord);
                 await Airplane.findByIdAndUpdate(planeId, { position: nextCord._id });
-                await Cord.findByIdAndUpdate(nextCord._id, { reserve: true });
+                await Cord.findByIdAndUpdate(nextCord._id, { reserve: false });
                 flight.reserveCord.splice(currentIndex, 1);
                 await flight.save();
                 currentIndex++;
@@ -105,6 +110,7 @@ class FlightService {
             throw error;
         }
     }
+
     async stopFlight(flightId) {
         try {
             if (this.runningFlights[flightId]) {

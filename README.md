@@ -41,15 +41,12 @@ flight
   - /api/cord
 - [x] Get flight info
   - /api/flight
-- [ ] Flight create
+- [x] Flight create
   - check for available route from one cord to dest cord- if present return array
-- [ ] Start fight-
-
-  - unreserve cord which are reserver by this flight in 2 sec and update cord of flight
-
+- [x] Start flight-
+  - unreserve cord which are reserver by this flight in 5 sec and update cord of flight
+- [x] stop flight
 - [ ] check near by airport
-
 
 - [] Randomly update cord weather
 - [] Randomly update plane health
-
