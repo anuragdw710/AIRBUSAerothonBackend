@@ -49,5 +49,7 @@ flight
 
 - [ ] check near by airport
 
-- [ ] Randomly update cord weather
-- [ ] Randomly update plane health
+
+- [] Randomly update cord weather
+- [] Randomly update plane health
+
