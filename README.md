@@ -30,9 +30,23 @@ flight
 ## Service:
 
 - [x] Add airplane
-  - /api/airplane
+  - URL Endpoint : /api/airplane
+  - verb: post
+  - payload:
+  ```
+  {
+    "position":"65e72adb1a811501c45afd72"
+  }
+  ```
 - [x] Add airport
-  - /api/airport
+  - URL endpoint: /api/airport
+  - verb: post
+  - payload:
+  ```
+  {
+    "airportCord":"65e72adb1a811501c45afd72"
+  }
+  ```
 - [x] Add cord
   - /api/cord
 - [x] Add airport
