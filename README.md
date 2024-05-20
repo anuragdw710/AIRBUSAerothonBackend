@@ -2,14 +2,15 @@
 
 cord/Mess
 
+- id
 - cord[x,y]
-- weather
-- reserve
+- weather(good,bad)
+- reserve(True,False)
 
 airplane
 
 - id,
-- heath:
+- heath(good,bad)
 - cord[x,y]
 
 airport
@@ -20,30 +21,33 @@ airport
 flight
 
 - id
-- departureAirportId
-- destinationAirportId
+- departureAirport(Cord)
+- destinationAirport(Cord)
 - reserveCord=[]
+- departureTime
+- destinationTime
 
-Service:
+## Service:
 
 - [x] Add airplane
-      -- /api/airplane
+  - /api/airplane
 - [x] Add airport
-      -- /api/airport
+  - /api/airport
 - [x] Add cord
-      -- /api/cord
+  - /api/cord
 - [x] Add airport
-      -- /api/airport
-
+  - /api/airport
 - [x] Get cord
-      -- /api/cord
+  - /api/cord
 - [x] Get flight info
-      -- /api/flight
+  - /api/flight
+- [ ] Flight create
+  - check for available route from one cord to dest cord- if present return array
+- [ ] Start fight-
 
-- [] Flight create-check for avaibale route from one cord to dest cord- if present return array
-- [] Start flght- unreserve corinate which are reserver by this flight in 2 sec and update cordinate of flight
+  - unreserve cord which are reserver by this flight in 2 sec and update cord of flight
 
-- [] check near by airport
+- [ ] check near by airport
 
-- [] Randomly update cord weather
-- [] Randomly update plane health
+- [ ] Randomly update cord weather
+- [ ] Randomly update plane health
