@@ -26,13 +26,13 @@ flight
 
 Service:
 
-- Add airplane [x]
-- Add airport [x]
-- Add cord [x]
-- Add airplane [x]
+- [x] (Add airplane)
+- [x] Add airport
+- [x] Add cord
+- [x] Add airplane
 
-- Get cord [x]
-- Get flight info [x]
+- [x] Get cord
+- [x] Get flight info
 
 - Flight create-check for avaibale route from one cord to dest cord- if present return array
 - Start flght- unreserve corinate which are reserver by this flight in 2 sec and update cordinate of flight

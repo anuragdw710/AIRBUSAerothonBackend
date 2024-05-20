@@ -22,8 +22,24 @@ const createAirport = async (req, res) => {
     }
 
 }
+const getAllAirports = async (req, res) => {
+    try {
+        const response = await airportService.getAll();
+        return res.status(200).json({
+            isSuccess: true,
+            response: response
+        });
+    } catch (error) {
+        return res.status(500).json({
+            isSuccess: false,
+            response: {},
+            err: error
+        });
+    }
+};
 
 
 module.exports = {
-    createAirport
+    createAirport,
+    getAllAirports
 }
