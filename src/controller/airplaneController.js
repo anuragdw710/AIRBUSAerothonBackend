@@ -23,7 +23,21 @@ const createAirplane = async (req, res) => {
 
 }
 
+const findNearestAirport = async (req, res) => {
+    try {
+        const response = await airplaneService.findNearestAirport(req.body.airplaneId);
+        return res.status(200).json({
+            "isSuccess": true,
+            "response": response
+        })
+
+    } catch (error) {
+        throw error;
+    }
+}
+
 
 module.exports = {
-    createAirplane
+    createAirplane,
+    findNearestAirport
 }

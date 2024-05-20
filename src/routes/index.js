@@ -17,5 +17,7 @@ router.get('/flight', FlightController.getAllFlights);
 router.post('/startFlight', FlightController.startFlight);
 router.post('/stopFlight', FlightController.stopFlight);
 
+router.get('/findNearestAirport', AirplaneController.findNearestAirport)
+
 
 module.exports = router;

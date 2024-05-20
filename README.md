@@ -43,10 +43,14 @@ flight
   - /api/flight
 - [x] Flight create
   - check for available route from one cord to dest cord- if present return array
+  - Method: post
+  - /api/flight
 - [x] Start flight-
   - unreserve cord which are reserver by this flight in 5 sec and update cord of flight
+  - /api/startFlight
 - [x] stop flight
-- [ ] check near by airport
-
+  - /api/stopFlight
+- [x] check near by airport
+  - /api/findNearestAirport
 - [] Randomly update cord weather
 - [] Randomly update plane health
