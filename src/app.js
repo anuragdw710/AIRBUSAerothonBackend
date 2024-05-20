@@ -8,8 +8,9 @@ const Cord = require('./models/cord');
 const Airport = require('./models/airport');
 const Flight = require('./models/flight');
 
-
+const cors = require('cors');
 const app = express();
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use('/api', apiRoutes);
