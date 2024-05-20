@@ -87,8 +87,21 @@ class FlightService {
             if (!flight) throw new Error('Flight not found');
 
             const { reserveCord, planeId } = flight;
-            console.log(reserveCord);
             let currentIndex = 0;
+
+            const checkWeather = async (coords) => {
+                for (const coord of coords) {
+                    const cord = await Cord.findById(coord);
+                    if (cord.weather !== 'good') return false;
+                }
+                return true;
+            };
+
+            const findNewPath = async (currentCoord, goalCoord) => {
+                const cords = await this.cordRepository.getAll();
+                const grid = await createGridFromDatabase(cords);
+                return astar(currentCoord, goalCoord, grid);
+            };
 
             this.runningFlights[flightId] = setInterval(async () => {
                 if (currentIndex >= reserveCord.length) {
@@ -98,19 +111,42 @@ class FlightService {
                     return;
                 }
 
-                const nextCord = reserveCord[currentIndex];
-                console.log(nextCord);
-                await Airplane.findByIdAndUpdate(planeId, { position: nextCord._id });
-                await Cord.findByIdAndUpdate(nextCord._id, { reserve: false });
-                flight.reserveCord.splice(currentIndex, 1);
-                await flight.save();
-                currentIndex++;
+                const nextThreeCords = reserveCord.slice(currentIndex, currentIndex + 3);
+                const weatherGood = await checkWeather(nextThreeCords);
+
+                if (!weatherGood) {
+                    // Clear reserved cords
+                    for (let i = currentIndex; i < reserveCord.length; i++) {
+                        await Cord.findByIdAndUpdate(reserveCord[i], { reserve: false });
+                    }
+                    // Find new path
+                    const currentCoord = await Cord.findById(reserveCord[currentIndex]);
+                    const goalCoord = await this.cordRepository.findOne({ _id: flight.destinationAirport });
+                    const newPath = await findNewPath({ x: currentCoord.x, y: currentCoord.y }, { x: goalCoord.x, y: goalCoord.y });
+
+                    if (newPath.length === 0) {
+                        clearInterval(this.runningFlights[flightId]);
+                        delete this.runningFlights[flightId];
+                        throw new Error('No path found due to bad weather conditions');
+                    }
+
+                    const reservedCords = await this.reserveCords(newPath, currentCoord, goalCoord);
+                    flight.reserveCord = reservedCords.map(cord => cord._id);
+                    await flight.save();
+                    currentIndex = 0;
+                } else {
+                    const nextCord = reserveCord[currentIndex];
+                    await Airplane.findByIdAndUpdate(planeId, { position: nextCord });
+                    await Cord.findByIdAndUpdate(nextCord, { reserve: false });
+                    flight.reserveCord.splice(0, 1);
+                    await flight.save();
+                    currentIndex++;
+                }
             }, 5000);
         } catch (error) {
             throw error;
         }
     }
-
     async stopFlight(flightId) {
         try {
             if (this.runningFlights[flightId]) {
