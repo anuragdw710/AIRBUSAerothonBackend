@@ -9,6 +9,7 @@ class FlightService {
     constructor() {
         this.flightRepository = new FlightRepository();
         this.cordRepository = new CordRepository();
+        this.runningFlights = {};
     }
 
 
@@ -71,6 +72,43 @@ class FlightService {
         try {
             const response = await this.flightRepository.getAll();
             return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async startFlight(flightId) {
+        try {
+            const flight = await this.flightRepository.findOne({ _id: flightId }).populate('reserveCord');
+            if (!flight) throw new Error('Flight not found');
+            const { reserveCord, planeId } = flight;
+            let currentIndex = 0;
+
+            this.runningFlights[flightId] = setInterval(async () => {
+                if (currentIndex >= reserveCord.length) {
+                    clearInterval(this.runningFlights[flightId]);
+                    delete this.runningFlights[flightId];
+                    return;
+                }
+
+                const nextCord = reserveCord[currentIndex];
+                await Airplane.findByIdAndUpdate(planeId, { position: nextCord._id });
+                await Cord.findByIdAndUpdate(nextCord._id, { reserve: true });
+                flight.reserveCord.splice(currentIndex, 1);
+                await flight.save();
+                currentIndex++;
+            }, 5000);
+        } catch (error) {
+            throw error;
+        }
+    }
+    async stopFlight(flightId) {
+        try {
+            if (this.runningFlights[flightId]) {
+                clearInterval(this.runningFlights[flightId]);
+                delete this.runningFlights[flightId];
+            } else {
+                throw new Error('Flight is not running');
+            }
         } catch (error) {
             throw error;
         }

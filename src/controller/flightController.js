@@ -36,9 +36,29 @@ const getAllFlights = async (req, res) => {
         });
     }
 };
+const startFlight = async (req, res) => {
+    try {
+        const { flightId } = req.body;
+        await flightService.startFlight(flightId);
+        return res.status(200).send({ message: 'Flight started' });
+    } catch (error) {
+        return res.status(500).send({ error: error.message });
+    }
+};
 
+const stopFlight = async (req, res) => {
+    try {
+        const { flightId } = req.body;
+        await flightService.stopFlight(flightId);
+        res.status(200).send({ message: 'Flight stopped' });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+};
 
 module.exports = {
     createflight,
-    getAllFlights
+    getAllFlights,
+    startFlight,
+    stopFlight
 }

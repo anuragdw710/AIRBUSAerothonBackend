@@ -17,6 +17,14 @@ class FlightRepository {
             throw error;
         }
     }
+    async findOne(query) {
+        try {
+            const response = await Flight.findOne(query).populate('reserveCord');
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
 
 
 }
