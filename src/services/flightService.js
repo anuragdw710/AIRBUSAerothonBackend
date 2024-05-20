@@ -38,7 +38,7 @@ class FlightService {
     }
     async create(data) {
         try {
-            const { startId, goalId, depTime, arrTime } = data;
+            const { startId, goalId, depTime, planeId, arrTime } = data;
 
             const start = await this.cordRepository.findOne({ _id: startId });
             const goal = await this.cordRepository.findOne({ _id: goalId });
@@ -59,6 +59,7 @@ class FlightService {
             const flightData = {
                 departureAirport: startId,
                 destinationAirport: goalId,
+                planeId: planeId,
                 reserveCord: reservedCords.map(cord => cord._id), // Assuming reserveCords returns objects with _id field
                 departureTime: new Date(depTime),
                 destinationTime: new Date(arrTime)
