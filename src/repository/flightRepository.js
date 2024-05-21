@@ -19,7 +19,7 @@ class FlightRepository {
     }
     async findOne(query) {
         try {
-            const response = await Flight.findOne(query).populate('reserveCord');
+            const response = await Flight.findOne(query);
             return response;
         } catch (error) {
             throw error;

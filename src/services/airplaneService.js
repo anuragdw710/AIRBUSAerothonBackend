@@ -18,11 +18,20 @@ class AirplaneService {
             throw error;
         }
     }
-    async findNearestAirport(airplaneId) {
+    async getAll() {
         try {
-            const airplane = await this.airplaneRepository.findOne({ _id: airplaneId });
-            if (!airplane) throw new Error('Airplane not found');
+            const response = await this.airplaneRepository.getAll();
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
 
+    async findNearestAirport(airPlaneName) {
+        try {
+            const airplane = await this.airplaneRepository.findOne({ "airPlaneName": airPlaneName });
+            if (!airplane) throw new Error('Airplane not found');
+            // Remain to Done
             const airplanePosition = await this.cordRepository.findOne({ _id: airplane.position });
             if (!airplanePosition) throw new Error('Airplane position not found');
 

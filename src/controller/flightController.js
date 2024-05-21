@@ -5,7 +5,14 @@ const flightService = new FlightService();
 const createflight = async (req, res) => {
     try {
 
-        const response = await flightService.create(req.body);
+        const response = await flightService.create({
+            "departureAirport": req.body.departureAirport,
+            "destinationAirport": req.body.destinationAirport,
+            "airPlaneName": req.body.airPlaneName,
+            "departureTime": req.body.departureTime,
+            "destinationTime": req.body.destinationTime,
+
+        });
         return res.status(200).json({
             "isSuccess": true,
             "response": response
@@ -38,8 +45,8 @@ const getAllFlights = async (req, res) => {
 };
 const startFlight = async (req, res) => {
     try {
-        const { flightId } = req.body;
-        await flightService.startFlight(flightId);
+        // console.log(req.body.flightId);
+        await flightService.startFlight(req.body.flightId);
         return res.status(200).send({ message: 'Flight started' });
     } catch (error) {
         return res.status(500).send({ error: error.message });
@@ -48,8 +55,7 @@ const startFlight = async (req, res) => {
 
 const stopFlight = async (req, res) => {
     try {
-        const { flightId } = req.body;
-        await flightService.stopFlight(flightId);
+        await flightService.stopFlight(req.body.flightId);
         res.status(200).send({ message: 'Flight stopped' });
     } catch (error) {
         res.status(500).send({ error: error.message });

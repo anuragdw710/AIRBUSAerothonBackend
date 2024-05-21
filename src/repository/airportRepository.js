@@ -11,7 +11,15 @@ class AirportRepository {
     }
     async getAll() {
         try {
-            const response = await Airport.find({}).populate('airportCord');
+            const response = await Airport.find({});
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findOne(data) {
+        try {
+            const response = await Airport.findOne(data);
             return response;
         } catch (error) {
             throw error;

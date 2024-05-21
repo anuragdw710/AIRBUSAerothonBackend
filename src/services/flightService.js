@@ -1,6 +1,7 @@
 const FlightRepository = require('../repository/flightRepository');
 const CordRepository = require('../repository/cordRepository');
 const AirplaneRepository = require('../repository/airplaneRepository');
+const AirportRepository = require('../repository/airportRepository');
 const Cord = require('../models/cord');
 const Airplane = require('../models/airplane');
 const { astar, createGridFromDatabase } = require('../utiles/astar');
@@ -11,7 +12,8 @@ class FlightService {
     constructor() {
         this.flightRepository = new FlightRepository();
         this.cordRepository = new CordRepository();
-        this.AirplaneRepository = new AirplaneRepository();
+        this.airplaneRepository = new AirplaneRepository();
+        this.airportRepository = new AirportRepository();
         this.runningFlights = {};
     }
 
@@ -31,17 +33,19 @@ class FlightService {
                     { reserve: false }
                 );
             }
-            const cord = await Cord.findOne({ x: coord.x, y: coord.y });
+            const cord = { x: coord.x, y: coord.y };
             reservedCords.push(cord);
         }
         return reservedCords;
     }
     async create(data) {
         try {
-            const { startId, goalId, depTime, planeId, arrTime } = data;
+            const departureAirport = data.departureAirport;
+            const destinationAirport = data.destinationAirport;
 
-            const start = await this.cordRepository.findOne({ _id: startId });
-            const goal = await this.cordRepository.findOne({ _id: goalId });
+            const start = await this.airportRepository.findOne({ "airPortName": departureAirport });
+            const goal = await this.airportRepository.findOne({ "airPortName": destinationAirport });
+
             if (!start || !goal) {
                 throw "Start and goal coordinates are required";
             }
@@ -57,12 +61,12 @@ class FlightService {
             const reservedCords = await this.reserveCords(path, start, goal);
             // console.log(reservedCords);
             const flightData = {
-                departureAirport: startId,
-                destinationAirport: goalId,
-                planeId: planeId,
-                reserveCord: reservedCords.map(cord => cord._id), // Assuming reserveCords returns objects with _id field
-                departureTime: new Date(depTime),
-                destinationTime: new Date(arrTime)
+                departureAirport: data.departureAirport,
+                destinationAirport: data.destinationAirport,
+                airPlaneName: data.airPlaneName,
+                reserveCord: reservedCords,
+                departureTime: new Date(data.departureTime),
+                destinationTime: new Date(data.destinationTime)
             };
             // console.log(flightData, ' flightData');
             const flight = await this.flightRepository.create(flightData);
@@ -83,15 +87,15 @@ class FlightService {
     }
     async startFlight(flightId) {
         try {
-            const flight = await this.flightRepository.findOne({ _id: flightId });
+            const flight = await this.flightRepository.findOne({ "flightId": flightId });
             if (!flight) throw new Error('Flight not found');
 
-            const { reserveCord, planeId } = flight;
+            const { reserveCord, airPlaneName } = flight;
             let currentIndex = 0;
 
             const checkWeather = async (coords) => {
                 for (const coord of coords) {
-                    const cord = await Cord.findById(coord);
+                    const cord = await this.cordRepository.findOne({ "x": cord.x, "y": cord.y });
                     if (cord.weather !== 'good') return false;
                 }
                 return true;
@@ -107,7 +111,7 @@ class FlightService {
                 if (currentIndex >= reserveCord.length) {
                     clearInterval(this.runningFlights[flightId]);
                     delete this.runningFlights[flightId];
-                    await this.flightRepository.delete({ _id: flightId });
+                    await this.flightRepository.delete({ "flightId": flightId });
                     return;
                 }
 
@@ -120,8 +124,8 @@ class FlightService {
                         await Cord.findByIdAndUpdate(reserveCord[i], { reserve: false });
                     }
                     // Find new path
-                    const currentCoord = await Cord.findById(reserveCord[currentIndex]);
-                    const goalCoord = await this.cordRepository.findOne({ _id: flight.destinationAirport });
+                    const currentCoord = await this.cordRepository.findOne(reserveCord[currentIndex]);
+                    const goalCoord = await this.airportRepository.findOne({ "airPortName": flight.destinationAirport });
                     const newPath = await findNewPath({ x: currentCoord.x, y: currentCoord.y }, { x: goalCoord.x, y: goalCoord.y });
 
                     if (newPath.length === 0) {
@@ -131,15 +135,15 @@ class FlightService {
                     }
 
                     const reservedCords = await this.reserveCords(newPath, currentCoord, goalCoord);
-                    flight.reserveCord = reservedCords.map(cord => cord._id);
+                    flight.reserveCord = reservedCords;
                     reserveCord = flight.reserveCord;
 
                     await flight.save();
                     currentIndex = 0;
                 } else {
                     const nextCord = reserveCord[currentIndex];
-                    await Airplane.findByIdAndUpdate(planeId, { position: nextCord });
-                    await Cord.findByIdAndUpdate(nextCord, { reserve: false });
+                    await this.airplaneRepository.findByIdAndUpdate({ "airPlaneName": airPlaneName }, { "x": nextCord.x, "y": nextCord.y });
+                    await this.cordRepository.findOneAndUpdate({ "x": nextCord.x, "y": nextCord.y }, { reserve: false });
                     flight.reserveCord.splice(0, 1);
                     await flight.save();
                     currentIndex++;

@@ -25,6 +25,22 @@ class AirplaneRepository {
         }
 
     }
+    async findOneAndUpdate(query, data) {
+        try {
+            const response = await Airplane.findOneAndUpdate(query, data, { new: true });
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getAll() {
+        try {
+            const response = await Airplane.find({});
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
 
 
 }

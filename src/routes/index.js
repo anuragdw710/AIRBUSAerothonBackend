@@ -6,13 +6,19 @@ const FlightController = require('../controller/flightController');
 
 const router = express.Router();
 
-router.post('/cord', CordController.createCord);
-router.post('/airport', AirportController.createAirport);
-router.post('/airplane', AirplaneController.createAirplane);
-router.post('/flight', FlightController.createflight);
 
+router.post('/airport', AirportController.createAirport);
+router.get('/airPort', AirportController.getAllAirports);
+
+router.post('/airplane', AirplaneController.createAirplane);
+router.get('/airplane', AirplaneController.getAllAirPlane);
+
+router.post('/cord', CordController.createCord);
 router.get('/cord', CordController.getAllCords);
+
+router.post('/flight', FlightController.createflight);
 router.get('/flight', FlightController.getAllFlights);
+
 
 router.post('/startFlight', FlightController.startFlight);
 router.post('/stopFlight', FlightController.stopFlight);

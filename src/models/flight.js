@@ -1,26 +1,34 @@
 const mongoose = require('mongoose');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Airplane = require('./airplane');
 const Cord = require('./cord'); // Adjust the path as necessary
 
 const flightSchema = new mongoose.Schema({
+    flightId: {
+        type: Number,
+        unique: true
+    },
     departureAirport: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Cord',
+        type: String,
         required: true
     },
     destinationAirport: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Cord',
+        type: String,
         required: true
     },
-    planeId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Airplane',
+    airPlaneName: {
+        type: String,
         required: true
     },
     reserveCord: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Cord'
+        x: {
+            type: Number,
+            require: true
+        },
+        y: {
+            type: Number,
+            require: true
+        }
     }],
     departureTime: {
         type: Date,
@@ -32,5 +40,6 @@ const flightSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+flightSchema.plugin(AutoIncrement, { inc_field: 'flightId' });
 const Flight = mongoose.model('Flight', flightSchema);
 module.exports = Flight;

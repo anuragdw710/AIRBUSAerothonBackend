@@ -6,7 +6,9 @@ const createAirport = async (req, res) => {
     try {
 
         const response = await airportService.create({
-            "airportCord": req.body.airportCord,
+            "airPortName": req.body.airPortName,
+            "x": req.body.x,
+            "y": req.body.y
         }
         );
         return res.status(200).json({

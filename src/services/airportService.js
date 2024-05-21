@@ -23,22 +23,22 @@ class AirportService {
     }
     async findNearestAirport(x, y) {
         try {
-            const cords = await this.cordRepository.getAll();
-            let nearestAirport = null;
-            let minDistance = Infinity;
+            // const cords = await this.cordRepository.getAll();
+            // let nearestAirport = null;
+            // let minDistance = Infinity;
 
-            for (const cord of cords) {
-                const distance = Math.sqrt(Math.pow(cord.x - x, 2) + Math.pow(cord.y - y, 2));
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    nearestAirport = cord;
-                }
-            }
+            // for (const cord of cords) {
+            //     const distance = Math.sqrt(Math.pow(cord.x - x, 2) + Math.pow(cord.y - y, 2));
+            //     if (distance < minDistance) {
+            //         minDistance = distance;
+            //         nearestAirport = cord;
+            //     }
+            // }
 
-            if (nearestAirport) {
-                const airport = await this.airportRepository.findByCordId(nearestAirport._id);
-                return airport;
-            }
+            // if (nearestAirport) {
+            //     const airport = await this.airportRepository.findByCordId(nearestAirport._id);
+            //     return airport;
+            // }
 
             throw new Error('No airports found');
         } catch (error) {
