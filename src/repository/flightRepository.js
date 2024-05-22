@@ -11,7 +11,7 @@ class FlightRepository {
     }
     async getAll() {
         try {
-            const response = await Flight.find({}).populate('reserveCord');
+            const response = await Flight.find({});
             return response;
         } catch (error) {
             throw error;
@@ -36,6 +36,14 @@ class FlightRepository {
     async delete(query) {
         try {
             const response = await Flight.deleteOne(query);
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async findOneAndUpdate(query, data) {
+        try {
+            const response = await Flight.findOneAndUpdate(query, data, { new: true });
             return response;
         } catch (error) {
             throw error;
