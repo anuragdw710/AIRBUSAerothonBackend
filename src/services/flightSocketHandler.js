@@ -56,7 +56,7 @@ const flightSocketHandler = async (io, socket) => {
         } catch (error) {
             socket.emit('error', error.toString());
         }
-        io.emit('getFlightDetails', await flightRepo.getAll());
+        io.emit('getFlight', await flightRepo.getAll());
     });
 
 
@@ -100,9 +100,28 @@ const flightSocketHandler = async (io, socket) => {
                 await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
                 socket.emit('getFlight', await flightRepo.getAll());
             } else {
-                socket.emit('weatherBad', 'No path found');
+                const airports = await airportRepo.getAll();
+                let foundPath = false;
+
+                for (let airport of airports) {
+                    const airportCoords = { x: airport.x, y: airport.y };
+                    const airportGrid = await createGridFromDatabase(cords);
+                    newPath = astar(currentPos, airportCoords, airportGrid);
+
+                    if (newPath.length > 0) {
+                        socket.emit('weatherBad', `Weather of the path is not good. Redirecting to nearest airport: ${airport.airPortName}.`);
+                        flight.reserveCord = newPath;
+                        await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
+                        foundPath = true;
+                        break;
+                    }
+                }
+
+                if (!foundPath) {
+                    socket.emit('weatherBad', 'No path found to any nearby airport');
+                }
             }
-            io.emit('getFlightDetails', await flightRepo.getAll());
+            io.emit('getFlight', await flightRepo.getAll());
         }
     });
 }
