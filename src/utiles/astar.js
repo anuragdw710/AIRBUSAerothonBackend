@@ -1,3 +1,4 @@
+const Cord = require('../models/cord');
 class Node {
     constructor(x, y, g, h, parent = null) {
         this.x = x;
@@ -96,7 +97,27 @@ async function createGridFromDatabase(cords) {
     return grid;
 }
 
+const reserveCords = async (path, start, goal) => {
+    const reservedCords = [];
+    for (const coord of path) {
+        reservedCords.push({ x: coord.x, y: coord.y });
+    }
+
+    // Perform bulk update
+    if (reservedCords.length > 2) {
+        const newArray = reservedCords.slice(1, -1);
+        await Cord.updateMany(
+            { $or: newArray.map(({ x, y }) => ({ x, y })) },
+            { reserve: false }
+        );
+    }
+
+
+    return reservedCords;
+};
+
 module.exports = {
     astar,
-    createGridFromDatabase
+    createGridFromDatabase,
+    reserveCords
 };
