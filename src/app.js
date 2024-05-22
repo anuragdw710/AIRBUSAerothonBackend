@@ -47,28 +47,24 @@ const cordRepository = new CordRepository();
 // });
 const reserveCords = async (path, start, goal) => {
     const reservedCords = [];
+    // console.log(path, " ", start, " ", goal);
     for (const coord of path) {
         if (
             !(
-                (coord.x === start.x && coord.y === start.y) ||
-                (coord.x === goal.x && coord.y === goal.y)
+                (coord.x == start.x && coord.y == start.y) ||
+                (coord.x == goal.x && coord.y == goal.y)
             )
         ) {
-            // Collect updates
-            reservedCords.push({ x: coord.x, y: coord.y });
+            const cord = await Cord.findOneAndUpdate(
+                { x: coord.x, y: coord.y },
+                { reserve: true }
+            );
         }
+        const cord = { x: coord.x, y: coord.y };
+        reservedCords.push(cord);
     }
-
-    // Perform bulk update
-    if (reservedCords.length > 0) {
-        await Cord.updateMany(
-            { $or: reservedCords.map(({ x, y }) => ({ x, y })) },
-            { reserve: false }
-        );
-    }
-
     return reservedCords;
-};
+}
 
 
 
@@ -92,6 +88,7 @@ io.on('connection', async (socket) => {
 
     // Handle client sending flightId with startFlight
     socket.on('startFlight', async (flightId) => {
+        console.log(flightId);
         const flight = await flightRepo.findOne({ "flightId": flightId });
         if (!flight) {
             socket.emit('error', 'No flight correspond to id');
@@ -103,13 +100,15 @@ io.on('connection', async (socket) => {
             return;
         }
         const grid = await createGridFromDatabase(cords);
+        // console.log(grid);
         const currentPos = flight.reserveCord[0];
         const nextThreeCoords = flight.reserveCord.slice(1, 4);
 
         // Check if the next three points are in good condition
         let pathIsClear = true;
-        for (let coord of nextThreeCoords) {
-            if (grid[coord.x][coord.y] === 0) {
+        for (const coord of nextThreeCoords) {
+            const cord = await cordRepo.findOne({ "x": coord.x, "y": coord.y });
+            if (cord.weather !== 'good') {
                 pathIsClear = false;
                 break;
             }
@@ -117,6 +116,7 @@ io.on('connection', async (socket) => {
 
         if (pathIsClear) {
             // Remove the first cord and send the updated reserve cord
+            cordRepo.findOneAndUpdate({ "x": currentPos.x, "y": currentPos.y }, { "reserve": false });
             flight.reserveCord.shift();
             await flightRepo.findOneAndUpdate({ "flightId": flightId }, { reserveCord: flight.reserveCord });
             socket.emit('getFlight', await flightRepo.getAll());
@@ -124,7 +124,7 @@ io.on('connection', async (socket) => {
             // Find a new path
             const destination = flight.reserveCord[flight.reserveCord.length - 1];
             const newPath = astar(currentPos, destination, grid);
-
+            console.log(newPath, currentPos, destination);
             if (newPath.length > 0) {
                 flight.reserveCord = newPath;
                 await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
@@ -186,5 +186,6 @@ server.listen(3000, async () => {
     console.log('Server started at 3000');
     await connect();
     console.log('Db connected');
-    startWeatherUpdateProcess(io);
+
+    // startWeatherUpdateProcess(io);
 });
