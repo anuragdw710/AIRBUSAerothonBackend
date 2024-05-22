@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
-const Airplane = require('./airplane');
-const Cord = require('./cord'); // Adjust the path as necessary
 
 const flightSchema = new mongoose.Schema({
     flightId: {
@@ -23,11 +21,11 @@ const flightSchema = new mongoose.Schema({
     reserveCord: [{
         x: {
             type: Number,
-            require: true
+            required: true
         },
         y: {
             type: Number,
-            require: true
+            required: true
         }
     }],
     departureTime: {
