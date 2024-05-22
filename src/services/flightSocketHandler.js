@@ -53,6 +53,7 @@ const flightSocketHandler = async (io, socket) => {
 
             const flight = await flightRepo.create(flightData);
             io.emit('flightCreated', flight);
+            socket.emit('message', "Flight Created !");
         } catch (error) {
             socket.emit('error', error.toString());
         }
@@ -89,16 +90,18 @@ const flightSocketHandler = async (io, socket) => {
             flight.reserveCord.shift();
             await flightRepo.findOneAndUpdate({ "flightId": flightId }, { reserveCord: flight.reserveCord });
             socket.emit('getFlight', await flightRepo.getAll());
+            socket.emit(`message', "Path is clear! Flight Move from ${currentPos.x}, ${currentPos.y} !`);
         } else {
             // Find a new path
             const destination = flight.reserveCord[flight.reserveCord.length - 1];
-            const newPath = astar(currentPos, destination, grid);
+            let newPath = astar(currentPos, destination, grid);
 
             if (newPath.length > 0) {
                 socket.emit('weatherBad', `Weather of the path is not good.So,Changing the route.`)
                 flight.reserveCord = newPath;
                 await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
                 socket.emit('getFlight', await flightRepo.getAll());
+                socket.emit(`message', "New path found due to weather condition ! Flight Move from ${currentPos.x}, ${currentPos.y} !`);
             } else {
                 const airports = await airportRepo.getAll();
                 let foundPath = false;
@@ -113,6 +116,7 @@ const flightSocketHandler = async (io, socket) => {
                         flight.reserveCord = newPath;
                         await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
                         foundPath = true;
+                        socket.emit(`message', "No path found, Moving to nearest Airport! Flight Move from ${currentPos.x}, ${currentPos.y} !`);
                         break;
                     }
                 }

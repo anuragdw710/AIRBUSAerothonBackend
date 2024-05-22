@@ -106,6 +106,7 @@ const reserveCords = async (path, start, goal) => {
     // Perform bulk update
     if (reservedCords.length > 2) {
         const newArray = reservedCords.slice(1, -1);
+        console.log("newArray", newArray);
         await Cord.updateMany(
             { $or: newArray.map(({ x, y }) => ({ x, y })) },
             { reserve: false }

@@ -23,11 +23,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('socketio', io);
 
-socketHandler(io);
 
 server.listen(3000, async () => {
     console.log('Server started at 3000');
     await connect();
     console.log('Db connected');
+    socketHandler(io);
     startWeatherUpdateProcess(io);
 });
