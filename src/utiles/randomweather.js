@@ -1,12 +1,13 @@
 const { model } = require("mongoose");
-const Cord = require('../models/cord')
+const Cord = require('../models/cord');
+const socketIo = require('socket.io');
 
 const setAllWeatherToGood = async () => {
     await Cord.updateMany({}, { $set: { weather: 'good' } });
     console.log('All points set to good weather.');
 };
 
-async function updateWeatherRandomly() {
+async function updateWeatherRandomly(io) {
     try {
         // Step 1: Find 10 random points with good weather
 
@@ -33,6 +34,10 @@ async function updateWeatherRandomly() {
         await Promise.all(updates);
         console.log('Weather updated to rainy or stormy for selected points.');
 
+        // Emit updated cord details to all clients
+        const updatedCords = await Cord.find({});
+        io.emit('updateCords', updatedCords);
+
         // Step 3: Set a timeout to revert the weather back to "good" after 5 minutes
         setTimeout(async () => {
             const revertUpdates = goodWeatherPoints.map(point => {
@@ -45,6 +50,10 @@ async function updateWeatherRandomly() {
             await Promise.all(revertUpdates);
             console.log('Weather reverted back to good for selected points.');
 
+            // Emit updated cord details to all clients
+            const updatedCords = await Cord.find({});
+            io.emit('updateCords', updatedCords);
+
         }, 5 * 60 * 1000); // 5 minutes in milliseconds
 
     } catch (error) {
@@ -52,14 +61,14 @@ async function updateWeatherRandomly() {
     }
 }
 
-const startWeatherUpdateProcess = async () => {
+const startWeatherUpdateProcess = async (io) => {
     await setAllWeatherToGood();
 
     // Run the weather update function every 5 minutes
-    setInterval(updateWeatherRandomly, 5 * 60 * 1000);
+    setInterval(() => updateWeatherRandomly(io), 5 * 60 * 1000);
 
     // Run the updateWeatherRandomly function immediately on server start
-    await updateWeatherRandomly();
+    await updateWeatherRandomly(io);
 };
 
 module.exports = startWeatherUpdateProcess;
