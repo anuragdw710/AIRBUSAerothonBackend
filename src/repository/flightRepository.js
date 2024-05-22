@@ -25,6 +25,14 @@ class FlightRepository {
             throw error;
         }
     }
+    async findOneAndUpdate(query, data) {
+        try {
+            const response = await Flight.findOneAndUpdate(query, data, { new: true });
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
     async delete(query) {
         try {
             const response = await Flight.deleteOne(query);
