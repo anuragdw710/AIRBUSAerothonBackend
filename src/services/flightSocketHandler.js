@@ -64,12 +64,13 @@ const flightSocketHandler = async (io, socket) => {
     socket.on('startFlight', async (flightId) => {
         const flight = await flightRepo.findOne({ "flightId": flightId });
         if (!flight) {
-            socket.emit('warn', 'Flight ID not found');
+            socket.emit('stopFlight', "stop");
             return;
         }
         if (flight.reserveCord.length == 0) {
             await flightRepo.delete({ "flightId": flightId });
             io.emit('getFlight', await flightRepo.getAll());
+            socket.emit('stopFlight', "stop");
             socket.emit('warn', 'Flight reached destination');
             return;
         }
@@ -86,8 +87,8 @@ const flightSocketHandler = async (io, socket) => {
         // Check if the next three points are in good condition
         let pathIsClear = true;
         for (let coord of nextThreeCoords) {
-            const currentPos= await cordRepo.findOne({x: coord.x, y: coord.y});
-            if(currentPos.weather != 'good') {
+            const currentPos = await cordRepo.findOne({ x: coord.x, y: coord.y });
+            if (currentPos.weather != 'good') {
                 pathIsClear = false;
                 break;
             }

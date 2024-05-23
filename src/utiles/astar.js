@@ -100,22 +100,14 @@ async function createGridFromDatabase(cords) {
 const reserveCords = async (path, start, goal) => {
     const reservedCords = [];
     for (const coord of path) {
-        reservedCords.push({ x: coord.x, y: coord.y });
+        if (!((coord.x == start.x && coord.y == start.y) || (coord.x == goal.x && coord.y == goal.y))) {
+            await Cord.findOneAndUpdate({ x: coord.x, y: coord.y }, { reserve: true });
+        }
+        const cord = { x: coord.x, y: coord.y };
+        reservedCords.push(cord);
     }
-
-    // Perform bulk update
-    if (reservedCords.length > 2) {
-        const newArray = reservedCords.slice(1, -1);
-        console.log("newArray", newArray);
-        await Cord.updateMany(
-            { $or: newArray.map(({ x, y }) => ({ x, y })) },
-            { reserve: false }
-        );
-    }
-
-
     return reservedCords;
-};
+}
 
 module.exports = {
     astar,
