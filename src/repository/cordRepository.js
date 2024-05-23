@@ -25,17 +25,7 @@ class CordRepository {
             throw error;
         }
     }
-    async findOneAndUpdate(data, newdata) {
-        try {
-            const response = await Cord.findOneAndUpdate(
-                data,
-                newdata
-            );
-            return response;
-        } catch (error) {
-            throw error;
-        }
-    }
+
     async findByIdAndUpdate(id, data) {
         try {
             await Cord.findByIdAndUpdate(id, data);

@@ -32,7 +32,7 @@ const flightSocketHandler = async (io, socket) => {
             const goalCords = { x: goal.x, y: goal.y };
             const cords = await cordRepo.getAll();
             const grid = await createGridFromDatabase(cords);
-            console.log(grid);
+            // console.log(grid);
             const path = dijkstra(startCords, goalCords, grid);
             if (path.length === 0) {
                 socket.emit('warn', "No Path found");
@@ -98,6 +98,7 @@ const flightSocketHandler = async (io, socket) => {
 
         if (pathIsClear) {
             // Remove the first cord and send the updated reserve cord
+            await cordRepo.findOneAndUpdate({ x: currentPos.x, y: currentPos.y }, { reserve: false });
             flight.reserveCord.shift();
             await flightRepo.findOneAndUpdate({ "flightId": flightId }, { reserveCord: flight.reserveCord });
             socket.emit('getFlight', await flightRepo.getAll());
@@ -114,8 +115,6 @@ const flightSocketHandler = async (io, socket) => {
                 flight.reserveCord = newPath;
                 await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
                 socket.emit('getFlight', await flightRepo.getAll());
-                socket.emit('message', `Flight-${flightId} in progress`);
-                socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
                 io.emit('getFlight', await flightRepo.getAll());
             } else {
                 const airports = await airportRepo.getAll();
