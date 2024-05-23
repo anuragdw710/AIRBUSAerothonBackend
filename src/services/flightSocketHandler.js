@@ -86,7 +86,8 @@ const flightSocketHandler = async (io, socket) => {
         // Check if the next three points are in good condition
         let pathIsClear = true;
         for (let coord of nextThreeCoords) {
-            if (grid[coord.x][coord.y] === 0) {
+            const currentPos= await cordRepo.findOne({x: coord.x, y: coord.y});
+            if(currentPos.weather != 'good') {
                 pathIsClear = false;
                 break;
             }
