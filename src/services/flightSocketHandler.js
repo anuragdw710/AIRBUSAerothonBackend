@@ -27,7 +27,7 @@ const flightSocketHandler = async (io, socket) => {
             const start = await airportRepo.findOne({ "airPortName": departureAirport });
             const goal = await airportRepo.findOne({ "airPortName": destinationAirport });
             if (!start || !goal) {
-                socket.emit('error', "Start and goal coordinates are required");
+                socket.emit('warn', "Start and goal coordinates are required");
                 throw "Start and goal coordinates are required";
             }
             const startCords = { x: start.x, y: start.y };
@@ -36,7 +36,7 @@ const flightSocketHandler = async (io, socket) => {
             const grid = await createGridFromDatabase(cords);
             const path = astar(startCords, goalCords, grid);
             if (path.length === 0) {
-                socket.emit('error', "No Path found");
+                socket.emit('warn', "No Path found");
                 throw "No path found";
             }
 
@@ -64,12 +64,19 @@ const flightSocketHandler = async (io, socket) => {
     socket.on('startFlight', async (flightId) => {
         const flight = await flightRepo.findOne({ "flightId": flightId });
         if (!flight) {
-            socket.emit('error', 'No flight correspond to id');
+            socket.emit('warn', 'Flight ID not found');
             return;
         }
         if (flight.reserveCord.length == 0) {
-            await flightRepo.delete({ "flightId": flightId })
-            socket.emit('error', 'Flight reach to destination');
+            await flightRepo.delete({ "flightId": flightId });
+            io.emit('getFlight', await flightRepo.getAll());
+            socket.emit('warn', 'Flight reached destination');
+            return;
+        }
+        if (flight.reserveCord.length == 1) {
+            await flightRepo.delete({ "flightId": flightId });
+            io.emit('getFlight', await flightRepo.getAll());
+            socket.emit('message', 'Flight reached destination');
             return;
         }
         const grid = await createGridFromDatabase(cords);
@@ -90,40 +97,48 @@ const flightSocketHandler = async (io, socket) => {
             flight.reserveCord.shift();
             await flightRepo.findOneAndUpdate({ "flightId": flightId }, { reserveCord: flight.reserveCord });
             socket.emit('getFlight', await flightRepo.getAll());
-            socket.emit(`message', "Path is clear! Flight Move from ${currentPos.x}, ${currentPos.y} !`);
+            socket.emit('message', `Flight-${flightId} in progress`);
+            socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
         } else {
             // Find a new path
             const destination = flight.reserveCord[flight.reserveCord.length - 1];
             let newPath = astar(currentPos, destination, grid);
 
             if (newPath.length > 0) {
-                socket.emit('weatherBad', `Weather of the path is not good.So,Changing the route.`)
+                socket.emit('warn', "Weather bad, changing route.....")
                 flight.reserveCord = newPath;
                 await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
                 socket.emit('getFlight', await flightRepo.getAll());
-                socket.emit(`message', "New path found due to weather condition ! Flight Move from ${currentPos.x}, ${currentPos.y} !`);
+                socket.emit('message', `Flight-${flightId} in progress`);
+                socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
             } else {
                 const airports = await airportRepo.getAll();
-                let foundPath = false;
+                let shortestPath = null;
+                let shortestPathLength = Infinity;
 
                 for (let airport of airports) {
                     const airportCoords = { x: airport.x, y: airport.y };
                     const airportGrid = await createGridFromDatabase(cords);
                     newPath = astar(currentPos, airportCoords, airportGrid);
 
-                    if (newPath.length > 0) {
-                        socket.emit('weatherBad', `Weather of the path is not good. Redirecting to nearest airport: ${airport.airPortName}.`);
-                        flight.reserveCord = newPath;
-                        await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
-                        foundPath = true;
-                        socket.emit(`message', "No path found, Moving to nearest Airport! Flight Move from ${currentPos.x}, ${currentPos.y} !`);
-                        break;
+                    if (newPath.length > 0 && newPath.length < shortestPathLength) {
+                        shortestPath = newPath;
+                        shortestPathLength = newPath.length;
                     }
                 }
 
-                if (!foundPath) {
-                    socket.emit('weatherBad', 'No path found to any nearby airport');
+                if (shortestPath) {
+                    const nearestAirport = airports.find(airport => airport.x === shortestPath[shortestPath.length - 1].x && airport.y === shortestPath[shortestPath.length - 1].y);
+                    socket.emit('warn', `Weather of the path is not good. Redirecting to nearest airport: ${nearestAirport.airPortName}.`);
+                    flight.reserveCord = shortestPath;
+                    await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
+                    socket.emit('message', `Flight-${flightId} in progress`);
+                    socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
+                } else {
+                    await flightRepo.delete({ "flightId": flightId });
+                    socket.emit('warn', 'No path found to any nearby airport! Removing the flight!');
                 }
+                socket.emit('getFlight', await flightRepo.getAll());
             }
             io.emit('getFlight', await flightRepo.getAll());
         }

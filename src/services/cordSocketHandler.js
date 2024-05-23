@@ -11,6 +11,7 @@ const cordSocketHandeler = async (io, socket) => {
     const flights = await flightRepo.getAll();
 
     socket.emit('initData', { cords, flights });
+    socket.emit("message", "Initial Data Fetch Done!");
 }
 
 module.exports = cordSocketHandeler;
