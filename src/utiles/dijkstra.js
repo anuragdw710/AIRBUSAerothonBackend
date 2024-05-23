@@ -18,7 +18,13 @@ function getNeighbors(node, grid) {
     for (const [dx, dy] of directions) {
         const x = node.x + dx;
         const y = node.y + dy;
+        // if (node.x == 0 && node.y == 1) {
+        // console.log("find", x, " ", y);
+        // }
         if (grid[x] && grid[x][y] !== undefined && grid[x][y] !== 0) {
+            // if (node.x == 0 && node.y == 1) {
+            // console.log("find", x, " ", y);
+            // }
             neighbors.push(new Node(x, y, 0));
         }
     }

@@ -38,7 +38,7 @@ server.listen(3000, async () => {
     //     .catch(err => {
     //         console.error(err);
     //     });
-    const isAirport = await Airport.find({ "x": 1, "y": 0 });
-    console.log(isAirport.length);
+    // const isAirport = await Airport.find({ "x": 1, "y": 0 });
+    // console.log(isAirport.length);
     startWeatherUpdateProcess(io);
 });

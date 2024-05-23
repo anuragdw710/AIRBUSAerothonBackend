@@ -8,7 +8,7 @@ const setAllWeatherToGood = async () => {
             await cordRepository.findOneAndUpdate({ _id: cord._id }, { weather: 'good' });
         });
     });
-    console.log('All points set to good weather.');
+    // console.log('All points set to good weather.');
 };
 
 async function updateWeatherRandomly(io) {
@@ -19,7 +19,7 @@ async function updateWeatherRandomly(io) {
         ]);
 
         if (goodWeatherPoints.length === 0) {
-            console.log('No points with good weather found.');
+            // console.log('No points with good weather found.');
             return;
         }
 
@@ -33,7 +33,7 @@ async function updateWeatherRandomly(io) {
         });
 
         await Promise.all(updates);
-        console.log('Weather updated to rainy or stormy for selected points.');
+        // console.log('Weather updated to rainy or stormy for selected points.');
 
         const updatedCords = await Cord.find({ _id: { $in: goodWeatherPoints.map(p => p._id) } });
         io.emit('weatherUpdate', updatedCords);
@@ -47,12 +47,12 @@ async function updateWeatherRandomly(io) {
             });
 
             await Promise.all(revertUpdates);
-            console.log('Weather reverted back to good for selected points.');
+            // console.log('Weather reverted back to good for selected points.');
 
             const revertedCords = await Cord.find({ _id: { $in: goodWeatherPoints.map(p => p._id) } });
             io.emit('weatherUpdate', revertedCords);
 
-        }, 60*5000);
+        }, 60 * 5000);
 
     } catch (error) {
         console.error('Error updating weather:', error);
@@ -62,7 +62,7 @@ async function updateWeatherRandomly(io) {
 const startWeatherUpdateProcess = async (io) => {
     await setAllWeatherToGood();
 
-    setInterval(() => updateWeatherRandomly(io), 60*5000);
+    setInterval(() => updateWeatherRandomly(io), 60 * 5000);
 
     await updateWeatherRandomly(io);
 };
