@@ -112,6 +112,9 @@ const flightSocketHandler = async (io, socket) => {
 
             if (newPath.length > 0) {
                 socket.emit('warn', "Weather bad, changing route.....")
+                for (let coord of flight.reserveCord) {
+                    await cordRepo.findOneAndUpdate({ x: coord.x, y: coord.y }, { reserve: false });
+                }
                 flight.reserveCord = newPath;
                 await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
                 socket.emit('getFlight', await flightRepo.getAll());
@@ -135,6 +138,9 @@ const flightSocketHandler = async (io, socket) => {
                 if (shortestPath) {
                     const nearestAirport = airports.find(airport => airport.x === shortestPath[shortestPath.length - 1].x && airport.y === shortestPath[shortestPath.length - 1].y);
                     socket.emit('warn', `Weather of the path is not good. Redirecting to nearest airport: ${nearestAirport.airPortName}.`);
+                    for (let coord of flight.reserveCord) {
+                        await cordRepo.findOneAndUpdate({ x: coord.x, y: coord.y }, { reserve: false });
+                    }
                     flight.reserveCord = shortestPath;
                     await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
                     socket.emit('message', `Flight-${flightId} in progress`);
