@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const Cord = require('./models/cord');
+const Airport = require('./models/airport');
 
 const mongoose = require('mongoose');
 const connect = require('./dbConfig/dbConfig');
@@ -29,5 +31,14 @@ server.listen(3000, async () => {
     await connect();
     console.log('Db connected');
     socketHandler(io);
+    // Cord.updateMany({}, { $set: { reserve: false } })
+    //     .then(result => {
+    //         console.log(result);
+    //     })
+    //     .catch(err => {
+    //         console.error(err);
+    //     });
+    const isAirport = await Airport.find({ "x": 1, "y": 0 });
+    console.log(isAirport.length);
     startWeatherUpdateProcess(io);
 });
