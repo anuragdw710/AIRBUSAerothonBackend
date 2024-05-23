@@ -1,16 +1,22 @@
 const FlightRepository = require('../repository/flightRepository');
 const CordRepository = require('../repository/cordRepository');
+const AirportRepository = require('../repository/airportRepository');
+const AirplaneRepository = require('../repository/airplaneRepository');
 
 const cordRepo = new CordRepository();
 const flightRepo = new FlightRepository();
+const airportRepo = new AirportRepository();
+const airplaneRepo = new AirplaneRepository();
 
 
 
 const cordSocketHandeler = async (io, socket) => {
     const cords = await cordRepo.getAll();
     const flights = await flightRepo.getAll();
+    const airport = await airportRepo.getAll();
+    const airplane = await airplaneRepo.getAll();
 
-    socket.emit('initData', { cords, flights });
+    socket.emit('initData', { cords, flights, airport, airplane });
     socket.emit("message", "Initial Data Fetch Done!");
     socket.on("changeWeather", async (data) => {
         // console.log(typeof data.x, " ", typeof data.y, " ", typeof data.weather);
