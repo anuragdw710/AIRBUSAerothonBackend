@@ -38,24 +38,24 @@ async function getNeighbors(node, grid) {
         const x2 = node.x;
         const y2 = node.y + dy;
 
-        // if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0
-        //     && ((grid[x1][y1] !== undefined && grid[x1][y1] !== 0) ||
-        //         (grid[x2][y2] !== undefined && grid[x2][y2] !== 0))
-        // ) {
-        //     neighbors.push(new Node(x, y, 0));
-        // }
-        if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0) {
-            const hasBlockingFlight = await Flight.findOne({
-                $and: [
-                    { 'reserveCord': { $elemMatch: { x: x1, y: y1 } } },
-                    { 'reserveCord': { $elemMatch: { x: x2, y: y2 } } }
-                ]
-            });
-
-            if (!hasBlockingFlight) {
-                neighbors.push(new Node(x, y, 0));
-            }
+        if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0
+            && ((grid[x1][y1] !== undefined && grid[x1][y1] !== 0) ||
+                (grid[x2][y2] !== undefined && grid[x2][y2] !== 0))
+        ) {
+            neighbors.push(new Node(x, y, 0));
         }
+        // if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0) {
+        //     const hasBlockingFlight = await Flight.findOne({
+        //         $and: [
+        //             { 'reserveCord': { $elemMatch: { x: x1, y: y1 } } },
+        //             { 'reserveCord': { $elemMatch: { x: x2, y: y2 } } }
+        //         ]
+        //     });
+
+        //     if (!hasBlockingFlight) {
+        //         neighbors.push(new Node(x, y, 0));
+        //     }
+        // }
     }
     // console.log(neighbors);
     return neighbors;
