@@ -1,4 +1,5 @@
 const Cord = require('../models/cord');
+const Flight = require('../models/flight');
 const Airport = require('../models/airport');
 class Node {
     constructor(x, y, g, parent = null) {
@@ -9,7 +10,7 @@ class Node {
     }
 }
 
-function getNeighbors(node, grid) {
+async function getNeighbors(node, grid) {
     const neighbors = [];
     const directions = [
         [0, 1], [1, 0], [0, -1], [-1, 0], // 4 directions
@@ -37,19 +38,30 @@ function getNeighbors(node, grid) {
         const x2 = node.x;
         const y2 = node.y + dy;
 
-        if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0
-            && ((grid[x1][y1] !== undefined && grid[x1][y1] !== 0) ||
-                (grid[x2][y2] !== undefined && grid[x2][y2] !== 0))
-        ) {
-            neighbors.push(new Node(x, y, 0));
+        // if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0
+        //     && ((grid[x1][y1] !== undefined && grid[x1][y1] !== 0) ||
+        //         (grid[x2][y2] !== undefined && grid[x2][y2] !== 0))
+        // ) {
+        //     neighbors.push(new Node(x, y, 0));
+        // }
+        if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0) {
+            const hasBlockingFlight = await Flight.findOne({
+                $and: [
+                    { 'reserveCord': { $elemMatch: { x: x1, y: y1 } } },
+                    { 'reserveCord': { $elemMatch: { x: x2, y: y2 } } }
+                ]
+            });
+
+            if (!hasBlockingFlight) {
+                neighbors.push(new Node(x, y, 0));
+            }
         }
     }
-
-
+    // console.log(neighbors);
     return neighbors;
 }
 
-function dijkstra(start, goal, grid) {
+async function dijkstra(start, goal, grid) {
     // console.log(start, " ", goal);
     const openSet = [];
     const closedSet = new Set();
@@ -73,8 +85,8 @@ function dijkstra(start, goal, grid) {
         }
 
         closedSet.add(`${current.x},${current.y}`);
-
-        for (const neighbor of getNeighbors(current, grid)) {
+        const neighborNode = await getNeighbors(current, grid);
+        for (const neighbor of neighborNode) {
             if (closedSet.has(`${neighbor.x},${neighbor.y}`)) {
                 continue;
             }

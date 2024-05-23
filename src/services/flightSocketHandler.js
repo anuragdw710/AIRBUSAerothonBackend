@@ -33,7 +33,7 @@ const flightSocketHandler = async (io, socket) => {
             const cords = await cordRepo.getAll();
             const grid = await createGridFromDatabase(cords);
             // console.log(grid);
-            const path = dijkstra(startCords, goalCords, grid);
+            const path = await dijkstra(startCords, goalCords, grid);
             if (path.length === 0) {
                 socket.emit('warn', "No Path found");
                 throw "No path found";
@@ -108,7 +108,7 @@ const flightSocketHandler = async (io, socket) => {
         } else {
             // Find a new path
             const destination = flight.reserveCord[flight.reserveCord.length - 1];
-            let newPath = dijkstra(currentPos, destination, grid);
+            let newPath = await dijkstra(currentPos, destination, grid);
 
             if (newPath.length > 0) {
                 socket.emit('warn', "Weather bad, changing route.....")
@@ -127,7 +127,7 @@ const flightSocketHandler = async (io, socket) => {
                 for (let airport of airports) {
                     const airportCoords = { x: airport.x, y: airport.y };
                     const airportGrid = await createGridFromDatabase(cords);
-                    newPath = dijkstra(currentPos, airportCoords, airportGrid);
+                    newPath = await dijkstra(currentPos, airportCoords, airportGrid);
 
                     if (newPath.length > 0 && newPath.length < shortestPathLength) {
                         shortestPath = newPath;
