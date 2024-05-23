@@ -99,6 +99,7 @@ const flightSocketHandler = async (io, socket) => {
             socket.emit('getFlight', await flightRepo.getAll());
             socket.emit('message', `Flight-${flightId} in progress`);
             socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
+            io.emit('getFlight', await flightRepo.getAll());
         } else {
             // Find a new path
             const destination = flight.reserveCord[flight.reserveCord.length - 1];
@@ -111,6 +112,7 @@ const flightSocketHandler = async (io, socket) => {
                 socket.emit('getFlight', await flightRepo.getAll());
                 socket.emit('message', `Flight-${flightId} in progress`);
                 socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
+                io.emit('getFlight', await flightRepo.getAll());
             } else {
                 const airports = await airportRepo.getAll();
                 let shortestPath = null;
@@ -134,13 +136,14 @@ const flightSocketHandler = async (io, socket) => {
                     await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
                     socket.emit('message', `Flight-${flightId} in progress`);
                     socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
+                    io.emit('getFlight', await flightRepo.getAll());
                 } else {
                     await flightRepo.delete({ "flightId": flightId });
+                    io.emit('getFlight', await flightRepo.getAll());
                     socket.emit('warn', 'No path found to any nearby airport! Removing the flight!');
                 }
                 socket.emit('getFlight', await flightRepo.getAll());
             }
-            io.emit('getFlight', await flightRepo.getAll());
         }
     });
 }
