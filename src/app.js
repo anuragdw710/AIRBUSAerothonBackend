@@ -4,6 +4,7 @@ const cors = require('cors');
 require('dotenv').config()
 const Cord = require('./models/cord');
 const Airport = require('./models/airport');
+const Airplane = require('./models/airplane');
 
 const mongoose = require('mongoose');
 const connect = require('./dbConfig/dbConfig');
@@ -42,5 +43,6 @@ server.listen(3000, async () => {
     //     });
     // const isAirport = await Airport.find({ "x": 1, "y": 0 });
     // console.log(isAirport.length);
+
     startWeatherUpdateProcess(io);
 });

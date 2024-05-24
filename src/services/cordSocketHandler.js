@@ -14,7 +14,8 @@ const cordSocketHandeler = async (io, socket) => {
     const cords = await cordRepo.getAll();
     const flights = await flightRepo.getAll();
     const airport = await airportRepo.getAll();
-    const airplane = await airplaneRepo.getAll();
+    const airplane = await airplaneRepo.getNonReservedAirports();
+    console.log("plane", airplane);
 
     socket.emit('initData', { cords, flights, airport, airplane });
     socket.emit("message", "Initial Data Fetch Done!");

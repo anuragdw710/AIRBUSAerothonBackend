@@ -41,8 +41,14 @@ class AirplaneRepository {
             throw error;
         }
     }
-
-
+    async getNonReservedAirports() {
+        try {
+            const airports = await Airplane.find({ reserve: false });
+            return airports;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = AirplaneRepository;
