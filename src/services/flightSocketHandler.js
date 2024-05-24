@@ -10,14 +10,16 @@ const cordRepo = new CordRepository();
 const flightSocketHandler = async (io, socket) => {
     const cords = await cordRepo.getAll();
 
+    
     socket.emit('getFlight', await flightRepo.getAll());
-
+    
     socket.on('getFlightDetails', async (flightId) => {
         const flight = await flightRepo.findOne({ flightId });
         socket.emit('flightDetails', flight);
     });
-
+    
     socket.on('createFlight', async (data) => {
+        console.log('createFlight', data);
         try {
             const departureAirport = data.departureAirport;
             const destinationAirport = data.destinationAirport;
@@ -32,7 +34,7 @@ const flightSocketHandler = async (io, socket) => {
             const goalCords = { x: goal.x, y: goal.y };
             const cords = await cordRepo.getAll();
             const grid = await createGridFromDatabase(cords);
-            // console.log(grid);
+            console.log(grid);
             const path = await dijkstra(startCords, goalCords, grid);
             if (path.length === 0) {
                 socket.emit('warn', "No Path found");
@@ -40,14 +42,14 @@ const flightSocketHandler = async (io, socket) => {
             }
 
             const reservedCords = await reserveCords(path, start, goal);
+            console.log(reserveCords, ' - reserve cords');
 
             const flightData = {
                 departureAirport: data.departureAirport,
                 destinationAirport: data.destinationAirport,
                 airPlaneName: data.airPlaneName,
                 reserveCord: reservedCords,
-                departureTime: new Date(data.departureTime),
-                destinationTime: new Date(data.destinationTime)
+                departureTime: data.departureTime,
             };
 
             const flight = await flightRepo.create(flightData);
@@ -57,29 +59,45 @@ const flightSocketHandler = async (io, socket) => {
             socket.emit('error', error.toString());
         }
         io.emit('getFlight', await flightRepo.getAll());
+
+        const cordAll = await cordRepo.getAll();
+        const flightAll = await flightRepo.getAll();
+        socket.emit('globalData', {cordAll,flightAll});
     });
 
     socket.on('startFlight', async (flightId) => {
         if (!flightId) {
             socket.emit('warn', "Flight Id is not present");
+            const cordAll = await cordRepo.getAll();
+            const flightAll = await flightRepo.getAll();
+            socket.emit('globalData', {cordAll,flightAll});
             return;
         }
         const flight = await flightRepo.findOne({ "flightId": flightId });
         if (!flight) {
             socket.emit('stopFlight', "stop");
+            const cordAll = await cordRepo.getAll();
+            const flightAll = await flightRepo.getAll();
+            socket.emit('globalData', {cordAll,flightAll});
             return;
         }
         if (flight.reserveCord.length == 0) {
             await flightRepo.delete({ "flightId": flightId });
             io.emit('getFlight', await flightRepo.getAll());
             socket.emit('stopFlight', "stop");
-            socket.emit('warn', 'Flight reached destination');
+            socket.emit('flightLog', 'Flight reached destination');
+            const cordAll = await cordRepo.getAll();
+            const flightAll = await flightRepo.getAll();
+            socket.emit('globalData', {cordAll,flightAll});
             return;
         }
         if (flight.reserveCord.length == 1) {
             await flightRepo.delete({ "flightId": flightId });
             io.emit('getFlight', await flightRepo.getAll());
-            socket.emit('message', 'Flight reached destination');
+            socket.emit('flightLog', 'Flight reaching destination');
+            const cordAll = await cordRepo.getAll();
+            const flightAll = await flightRepo.getAll();
+            socket.emit('globalData', {cordAll,flightAll});
             return;
         }
         const grid = await createGridFromDatabase(cords);
@@ -102,16 +120,20 @@ const flightSocketHandler = async (io, socket) => {
             flight.reserveCord.shift();
             await flightRepo.findOneAndUpdate({ "flightId": flightId }, { reserveCord: flight.reserveCord });
             socket.emit('getFlight', await flightRepo.getAll());
-            socket.emit('message', `Flight-${flightId} in progress`);
-            socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
+            // socket.emit('message', `Flight-${flightId} in progress`);
+            socket.emit('flightLog', `Flight at: ${currentPos.x}, ${currentPos.y}`);
             io.emit('getFlight', await flightRepo.getAll());
+            
+            const cordAll = await cordRepo.getAll();
+            const flightAll = await flightRepo.getAll();
+            socket.emit('globalData', {cordAll,flightAll});
         } else {
             // Find a new path
             const destination = flight.reserveCord[flight.reserveCord.length - 1];
             let newPath = await dijkstra(currentPos, destination, grid);
 
             if (newPath.length > 0) {
-                socket.emit('warn', "Weather bad, changing route.....")
+                socket.emit('flightLog', "Weather bad, changing route.....")
                 for (let coord of flight.reserveCord) {
                     await cordRepo.findOneAndUpdate({ x: coord.x, y: coord.y }, { reserve: false });
                 }
@@ -119,6 +141,10 @@ const flightSocketHandler = async (io, socket) => {
                 await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
                 socket.emit('getFlight', await flightRepo.getAll());
                 io.emit('getFlight', await flightRepo.getAll());
+
+                // const cordAll = await cordRepo.getAll();
+                // const flightAll = await flightRepo.getAll();
+                // socket.emit('globalData', {cordAll,flightAll});
             } else {
                 const airports = await airportRepo.getAll();
                 let shortestPath = null;
@@ -137,22 +163,25 @@ const flightSocketHandler = async (io, socket) => {
 
                 if (shortestPath) {
                     const nearestAirport = airports.find(airport => airport.x === shortestPath[shortestPath.length - 1].x && airport.y === shortestPath[shortestPath.length - 1].y);
-                    socket.emit('warn', `Weather of the path is not good. Redirecting to nearest airport: ${nearestAirport.airPortName}.`);
+                    socket.emit('flightLog', `Weather of the path is not good. Redirecting to nearest airport: ${nearestAirport.airPortName}.`);
                     for (let coord of flight.reserveCord) {
                         await cordRepo.findOneAndUpdate({ x: coord.x, y: coord.y }, { reserve: false });
                     }
                     flight.reserveCord = shortestPath;
                     await flightRepo.findOneAndUpdate({ flightId }, { reserveCord: flight.reserveCord });
-                    socket.emit('message', `Flight-${flightId} in progress`);
-                    socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
+                    // socket.emit('message', `Flight-${flightId} in progress`);
+                    // socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
                     io.emit('getFlight', await flightRepo.getAll());
                 } else {
                     await flightRepo.delete({ "flightId": flightId });
                     io.emit('getFlight', await flightRepo.getAll());
-                    socket.emit('warn', 'No path found to any nearby airport! Removing the flight!');
+                    socket.emit('flightLog', 'No path found to any nearby airport! Removing the flight!');
                 }
                 socket.emit('getFlight', await flightRepo.getAll());
             }
+            const cordAll = await cordRepo.getAll();
+            const flightAll = await flightRepo.getAll();
+            socket.emit('globalData', {cordAll,flightAll});
         }
     });
 }

@@ -30,6 +30,9 @@ const cordSocketHandeler = async (io, socket) => {
         await cordRepo.findOneAndUpdate({ x: data.x, y: data.y }, { "weather": data.weather });
         io.emit("getCord", await cordRepo.getAll());
         socket.emit("changeWeather", "Weather Changed");
+        const cordAll = await cordRepo.getAll();
+        const flightAll = await flightRepo.getAll();
+        socket.emit('globalData', {cordAll,flightAll});
     })
 }
 
