@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+require('dotenv').config()
 const Cord = require('./models/cord');
 const Airport = require('./models/airport');
 
@@ -25,6 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('socketio', io);
 
+const PORT = process.env.PORT || 8000;
 
 server.listen(3000, async () => {
     console.log('Server started at 3000');
