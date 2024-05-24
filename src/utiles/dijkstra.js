@@ -14,6 +14,7 @@ async function getNeighbors(node, grid) {
     const neighbors = [];
     const directions = [
         [0, 1], [1, 0], [0, -1], [-1, 0], // 4 directions
+        [1, 1], [1, -1], [-1, 1], [-1, -1]
     ];
 
     for (const [dx, dy] of directions) {
@@ -29,21 +30,21 @@ async function getNeighbors(node, grid) {
             neighbors.push(new Node(x, y, 0));
         }
     }
-    const directions2 = [[1, 1], [1, -1], [-1, 1], [-1, -1]]; // Diagonals
-    for (const [dx, dy] of directions2) {
-        const x = node.x + dx;
-        const y = node.y + dy;
-        const x1 = node.x + dx;
-        const y1 = node.y;
-        const x2 = node.x;
-        const y2 = node.y + dy;
+    // const directions2 = [[1, 1], [1, -1], [-1, 1], [-1, -1]]; // Diagonals
+    // for (const [dx, dy] of directions2) {
+    //     const x = node.x + dx;
+    //     const y = node.y + dy;
+    //     const x1 = node.x + dx;
+    //     const y1 = node.y;
+    //     const x2 = node.x;
+    //     const y2 = node.y + dy;
 
-        if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0
-            && ((grid[x1][y1] !== undefined && grid[x1][y1] !== 0) ||
-                (grid[x2][y2] !== undefined && grid[x2][y2] !== 0))
-        ) {
-            neighbors.push(new Node(x, y, 0));
-        }
+    //     if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0
+    //         && ((grid[x1][y1] !== undefined && grid[x1][y1] !== 0) ||
+    //             (grid[x2][y2] !== undefined && grid[x2][y2] !== 0))
+    //     ) {
+    //         neighbors.push(new Node(x, y, 0));
+    //     }
         // if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0) {
         //     const hasBlockingFlight = await Flight.findOne({
         //         $and: [
@@ -56,13 +57,13 @@ async function getNeighbors(node, grid) {
         //         neighbors.push(new Node(x, y, 0));
         //     }
         // }
-    }
+    // }
     // console.log(neighbors);
     return neighbors;
 }
 
 async function dijkstra(start, goal, grid) {
-    // console.log(start, " ", goal);
+    console.log(start, " ", goal);
     const openSet = [];
     const closedSet = new Set();
     const startNode = new Node(start.x, start.y, 0);
