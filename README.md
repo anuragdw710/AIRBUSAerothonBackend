@@ -24,6 +24,34 @@
 - departureTime
 - destinationTime
 
+# Socket
+
+                          +---------------------+
+                          |       Client        |
+                          +----------+----------+
+                                     |
+                                     | WebSocket Connection (Socket.IO)
+                                     |
+                          +----------v----------+
+                          |      Server         |
+                          |  (Socket Handlers)  |
+                          +----------+----------+
+                                     |
+      +------------------+-----------+-------------+------------------+
+      |                  |                         |                  |
++-----v-----+     +------v------+           +------v------+     +-----v-----+
+| Airplane  |     |  Airport   |           | Coordinates |     |   Flight   |
+|  Handler  |     |   Handler  |           |   Handler   |     |   Handler  |
++-----+-----+     +------+------+           +------+------+-    +-----+-----+
+      |                  |                         |                  |
++-----v-----+     +------v------+           +------v------+     +-----v-----+
+| Airplane  |     |  Airport   |           |  Cord      |     |  Flight    |
+|Repository |     | Repository |           | Repository |     |Repository  |
++-----------+     +------------+           +------------+     +-----------+
+      |
+ MongoDB
+
+
 ### Cord
 
 - x
