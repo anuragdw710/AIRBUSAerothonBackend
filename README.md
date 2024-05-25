@@ -68,8 +68,11 @@
 - Emits all flights to the client and listens for flight details requests, flight creation, and flight start events. Manages flight paths, including handling weather conditions and rerouting if necessary.
 
 
- To run this application locally, follow these steps:
-``
+## How to Run the Application Locally
+
+To run this application locally, follow these steps:
+
+```bash
 # Clone the repository
 git clone https://github.com/anuragdw710/AIRBUSAerothonBackend
 
@@ -81,5 +84,4 @@ npm install
 
 # Run the application
 npm start
-```
 
