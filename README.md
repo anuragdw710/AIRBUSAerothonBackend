@@ -9,14 +9,14 @@
 - Ensure safe and efficient flight navigation by addressing critical challenges.
 
 ## Solution
-- For path optimal path finding use the Dijkstra algorithm.
-- Weather alert, Find optimal path in case of bad weather in route.
-- Find the nearest airport in case of no path exits or system failure.
-- No flight should cross each other using  reserve cords.
-- Real-time data update using sockit.io.
-- Pilat should be able to run multiple airplanes in different systems with real-time updates using socket.io
-- Random weather update(Hack)
-- Update the weather of a point(Hack)
+- Optimal Path Finding: Utilized the Dijkstra algorithm for efficient route planning.
+- Weather Alert: Developed a mechanism to find optimal paths in case of adverse weather conditions along the route.
+- Emergency Landing: Implemented functionality to locate the nearest airport if no viable path exists or in case of system failure.
+- Collision Avoidance: Ensured that no flights cross each other by using reserved coordinates.
+- Real-time Data Update: Integrated socket.io for real-time data updates.
+- Multiple Systems Management: Enabled pilots to manage multiple airplanes across different systems with real-time updates via socket.io.
+- Random Weather Update (Hack): Incorporated a feature to simulate random weather updates.
+- Weather Point Update (Hack): Added the ability to update weather conditions at specific coordinates.
 
 ## DATABASE
 ![image](https://github.com/anuragdw710/AIRBUSAerothonBackend/assets/78266752/f414e0fd-edae-4141-8877-e49c5263f852)
