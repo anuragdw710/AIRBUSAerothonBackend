@@ -24,33 +24,6 @@
 - departureTime
 - destinationTime
 
-# Socket
-
-                          +---------------------+
-                          |       Client        |
-                          +----------+----------+
-                                     |
-                                     | WebSocket Connection (Socket.IO)
-                                     |
-                          +----------v----------+
-                          |      Server         |
-                          |  (Socket Handlers)  |
-                          +----------+----------+
-                                     |
-      +------------------+-----------+-------------+------------------+
-      |                  |                         |                  |
-+-----v-----+     +------v------+           +------v------+     +-----v-----+
-| Airplane  |     |  Airport   |           | Coordinates |     |   Flight   |
-|  Handler  |     |   Handler  |           |   Handler   |     |   Handler  |
-+-----+-----+     +------+------+           +------+------+-    +-----+-----+
-      |                  |                         |                  |
-+-----v-----+     +------v------+           +------v------+     +-----v-----+
-| Airplane  |     |  Airport   |           |  Cord      |     |  Flight    |
-|Repository |     | Repository |           | Repository |     |Repository  |
-+-----------+     +------------+           +------------+     +-----------+
-      |
- MongoDB
-
 
 ### Cord
 
@@ -58,3 +31,9 @@
 - y
 - weather
 - reserve
+
+# Socket
+
+![image](https://github.com/anuragdw710/AIRBUSAerothonBackend/assets/78266752/3cb01bb5-770c-40a9-b3f3-108684b00e54)
+
+
