@@ -4,10 +4,10 @@
 - [Live](https://aeronavigator.vercel.app/)
 
 
-#### Objective: 
+## Objective: 
 - Ensure safe and efficient flight navigation by addressing critical challenges.
 
-#### Solution
+## Solution
 - For path optimal path finding use the Dijkstra algorithm.
 - Weather alert, Find optimal path in case of bad weather in route.
 - Find the nearest airport in case of no path exits or system failure.
@@ -17,7 +17,7 @@
 - Random weather update(Hack)
 - Update the weather of a point(Hack)
 
-#### DATABASE
+## DATABASE
 ![image](https://github.com/anuragdw710/AIRBUSAerothonBackend/assets/78266752/f414e0fd-edae-4141-8877-e49c5263f852)
 
 
@@ -51,7 +51,7 @@
 - weather
 - reserve
 
-#### Socket
+## Socket
 
 ![image](https://github.com/anuragdw710/AIRBUSAerothonBackend/assets/78266752/3cb01bb5-770c-40a9-b3f3-108684b00e54)
 
@@ -68,7 +68,7 @@
 - Emits all flights to the client and listens for flight details requests, flight creation, and flight start events. Manages flight paths, including handling weather conditions and rerouting if necessary.
 
 
-- To run this application locally, follow these steps:
+## To run this application locally, follow these steps:
 ``
 # Clone the repository
 git clone https://github.com/anuragdw710/AIRBUSAerothonBackend
