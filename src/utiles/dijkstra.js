@@ -45,25 +45,25 @@ async function getNeighbors(node, grid) {
     //     ) {
     //         neighbors.push(new Node(x, y, 0));
     //     }
-        // if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0) {
-        //     const hasBlockingFlight = await Flight.findOne({
-        //         $and: [
-        //             { 'reserveCord': { $elemMatch: { x: x1, y: y1 } } },
-        //             { 'reserveCord': { $elemMatch: { x: x2, y: y2 } } }
-        //         ]
-        //     });
+    // if (grid[x] && grid[x][y] && grid[x][y] !== undefined && grid[x][y] !== 0) {
+    //     const hasBlockingFlight = await Flight.findOne({
+    //         $and: [
+    //             { 'reserveCord': { $elemMatch: { x: x1, y: y1 } } },
+    //             { 'reserveCord': { $elemMatch: { x: x2, y: y2 } } }
+    //         ]
+    //     });
 
-        //     if (!hasBlockingFlight) {
-        //         neighbors.push(new Node(x, y, 0));
-        //     }
-        // }
+    //     if (!hasBlockingFlight) {
+    //         neighbors.push(new Node(x, y, 0));
+    //     }
+    // }
     // }
     // console.log(neighbors);
     return neighbors;
 }
 
 async function dijkstra(start, goal, grid) {
-    console.log(start, " ", goal);
+    // console.log(start, " ", goal);
     const openSet = [];
     const closedSet = new Set();
     const startNode = new Node(start.x, start.y, 0);
