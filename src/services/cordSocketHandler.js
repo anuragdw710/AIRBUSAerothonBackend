@@ -14,7 +14,7 @@ const cordSocketHandeler = async (io, socket) => {
     const cords = await cordRepo.getAll();
     const flights = await flightRepo.getAll();
     const airport = await airportRepo.getAll();
-    const airplane = await airplaneRepo.getAll();
+    const airplane = await airplaneRepo.getNonReservedAirports();
 
     socket.emit('initData', { cords, flights, airport, airplane });
     socket.emit("message", "Initial Data Fetch Done!");
@@ -32,7 +32,7 @@ const cordSocketHandeler = async (io, socket) => {
         socket.emit("changeWeather", "Weather Changed");
         const cordAll = await cordRepo.getAll();
         const flightAll = await flightRepo.getAll();
-        socket.emit('globalData', {cordAll,flightAll});
+        socket.emit('globalData', { cordAll, flightAll });
     })
 }
 

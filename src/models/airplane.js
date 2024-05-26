@@ -18,6 +18,10 @@ const airplaneSchema = new mongoose.Schema({
     y: {
         type: Number,
         required: true
+    },
+    reserve: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

@@ -1,40 +1,48 @@
 const FlightRepository = require('../repository/flightRepository');
 const AirportRepository = require('../repository/airportRepository');
 const CordRepository = require('../repository/cordRepository');
+const AirplaneRepository = require('../repository/airplaneRepository');
 const { dijkstra, createGridFromDatabase, reserveCords } = require('../utiles/dijkstra');
 
 const flightRepo = new FlightRepository();
 const airportRepo = new AirportRepository();
 const cordRepo = new CordRepository();
+const airplaneRepo = new AirplaneRepository();
 
 const flightSocketHandler = async (io, socket) => {
     const cords = await cordRepo.getAll();
 
-    
+
     socket.emit('getFlight', await flightRepo.getAll());
-    
+
     socket.on('getFlightDetails', async (flightId) => {
         const flight = await flightRepo.findOne({ flightId });
         socket.emit('flightDetails', flight);
     });
-    
+
     socket.on('createFlight', async (data) => {
-        console.log('createFlight', data);
+        // console.log('createFlight', data);
         try {
             const departureAirport = data.departureAirport;
             const destinationAirport = data.destinationAirport;
 
             const start = await airportRepo.findOne({ "airPortName": departureAirport });
             const goal = await airportRepo.findOne({ "airPortName": destinationAirport });
+            const plane = await airplaneRepo.findOne({ "airPlaneName": data.airPlaneName });
+            if (plane.reserve) {
+                socket.emit('warn', "Plane is already reserved");
+                return;
+            }
             if (!start || !goal) {
                 socket.emit('warn', "Start and goal coordinates are required");
                 throw "Start and goal coordinates are required";
+                return;
             }
             const startCords = { x: start.x, y: start.y };
             const goalCords = { x: goal.x, y: goal.y };
             const cords = await cordRepo.getAll();
             const grid = await createGridFromDatabase(cords);
-            console.log(grid);
+            // console.log(grid);
             const path = await dijkstra(startCords, goalCords, grid);
             if (path.length === 0) {
                 socket.emit('warn', "No Path found");
@@ -51,7 +59,8 @@ const flightSocketHandler = async (io, socket) => {
                 reserveCord: reservedCords,
                 departureTime: data.departureTime,
             };
-
+            await airplaneRepo.findOneAndUpdate({ "airPlaneName": data.airPlaneName }, { reserve: true });
+            io.emit('getAirPlane', await airplaneRepo.getNonReservedAirports());
             const flight = await flightRepo.create(flightData);
             io.emit('flightCreated', flight);
             socket.emit('message', "Flight Created !");
@@ -62,7 +71,7 @@ const flightSocketHandler = async (io, socket) => {
 
         const cordAll = await cordRepo.getAll();
         const flightAll = await flightRepo.getAll();
-        socket.emit('globalData', {cordAll,flightAll});
+        socket.emit('globalData', { cordAll, flightAll });
     });
 
     socket.on('startFlight', async (flightId) => {
@@ -70,7 +79,7 @@ const flightSocketHandler = async (io, socket) => {
             socket.emit('warn', "Flight Id is not present");
             const cordAll = await cordRepo.getAll();
             const flightAll = await flightRepo.getAll();
-            socket.emit('globalData', {cordAll,flightAll});
+            socket.emit('globalData', { cordAll, flightAll });
             return;
         }
         const flight = await flightRepo.findOne({ "flightId": flightId });
@@ -78,26 +87,30 @@ const flightSocketHandler = async (io, socket) => {
             socket.emit('stopFlight', "stop");
             const cordAll = await cordRepo.getAll();
             const flightAll = await flightRepo.getAll();
-            socket.emit('globalData', {cordAll,flightAll});
+            socket.emit('globalData', { cordAll, flightAll });
             return;
         }
         if (flight.reserveCord.length == 0) {
             await flightRepo.delete({ "flightId": flightId });
+            await airplaneRepo.findOneAndUpdate({ "airPlaneName": flight.airPlaneName }, { reserve: false });
+            io.emit('getAirPlane', await airplaneRepo.getNonReservedAirports());
             io.emit('getFlight', await flightRepo.getAll());
             socket.emit('stopFlight', "stop");
             socket.emit('flightLog', 'Flight reached destination');
             const cordAll = await cordRepo.getAll();
             const flightAll = await flightRepo.getAll();
-            socket.emit('globalData', {cordAll,flightAll});
+            socket.emit('globalData', { cordAll, flightAll });
             return;
         }
         if (flight.reserveCord.length == 1) {
             await flightRepo.delete({ "flightId": flightId });
+            await airplaneRepo.findOneAndUpdate({ "airPlaneName": flight.airPlaneName }, { reserve: false });
+            io.emit('getAirPlane', await airplaneRepo.getNonReservedAirports());
             io.emit('getFlight', await flightRepo.getAll());
             socket.emit('flightLog', 'Flight reaching destination');
             const cordAll = await cordRepo.getAll();
             const flightAll = await flightRepo.getAll();
-            socket.emit('globalData', {cordAll,flightAll});
+            socket.emit('globalData', { cordAll, flightAll });
             return;
         }
         const grid = await createGridFromDatabase(cords);
@@ -117,16 +130,17 @@ const flightSocketHandler = async (io, socket) => {
         if (pathIsClear) {
             // Remove the first cord and send the updated reserve cord
             await cordRepo.findOneAndUpdate({ x: currentPos.x, y: currentPos.y }, { reserve: false });
+            io.emit('getAirPlane', await airplaneRepo.getNonReservedAirports());
             flight.reserveCord.shift();
             await flightRepo.findOneAndUpdate({ "flightId": flightId }, { reserveCord: flight.reserveCord });
             socket.emit('getFlight', await flightRepo.getAll());
             // socket.emit('message', `Flight-${flightId} in progress`);
             socket.emit('flightLog', `Flight at: ${currentPos.x}, ${currentPos.y}`);
             io.emit('getFlight', await flightRepo.getAll());
-            
+
             const cordAll = await cordRepo.getAll();
             const flightAll = await flightRepo.getAll();
-            socket.emit('globalData', {cordAll,flightAll});
+            socket.emit('globalData', { cordAll, flightAll });
         } else {
             // Find a new path
             const destination = flight.reserveCord[flight.reserveCord.length - 1];
@@ -173,6 +187,8 @@ const flightSocketHandler = async (io, socket) => {
                     // socket.emit('message', `Path clear: moving from ${currentPos.x}, ${currentPos.y}`);
                     io.emit('getFlight', await flightRepo.getAll());
                 } else {
+                    await airplaneRepo.findOneAndUpdate({ "airPlaneName": flight.airPlaneName }, { reserve: false });
+                    io.emit('getAirPlane', await airplaneRepo.getNonReservedAirports());
                     await flightRepo.delete({ "flightId": flightId });
                     io.emit('getFlight', await flightRepo.getAll());
                     socket.emit('flightLog', 'No path found to any nearby airport! Removing the flight!');
@@ -181,7 +197,7 @@ const flightSocketHandler = async (io, socket) => {
             }
             const cordAll = await cordRepo.getAll();
             const flightAll = await flightRepo.getAll();
-            socket.emit('globalData', {cordAll,flightAll});
+            socket.emit('globalData', { cordAll, flightAll });
         }
     });
 }
