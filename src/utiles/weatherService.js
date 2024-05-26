@@ -15,7 +15,7 @@ async function updateWeatherRandomly(io) {
     try {
         const goodWeatherPoints = await Cord.aggregate([
             { $match: { weather: 'good' } },
-            { $sample: { size: 10 } }
+            { $sample: { size: 5 } }
         ]);
 
         if (goodWeatherPoints.length === 0) {
