@@ -50,7 +50,7 @@ const flightSocketHandler = async (io, socket) => {
             }
 
             const reservedCords = await reserveCords(path, start, goal);
-            console.log(reserveCords, ' - reserve cords');
+            // console.log(reserveCords, ' - reserve cords');
 
             const flightData = {
                 departureAirport: data.departureAirport,
