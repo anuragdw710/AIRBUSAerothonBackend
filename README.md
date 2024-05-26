@@ -1,3 +1,11 @@
+![GitHub contributors](https://img.shields.io/github/contributors/anuragdw710/AIRBUSAerothonBackend)
+![GitHub issues](https://img.shields.io/github/issues/anuragdw710/AIRBUSAerothonBackend)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/anuragdw710/AIRBUSAerothonBackend)
+![GitHub last commit](https://img.shields.io/github/last-commit/anuragdw710/AIRBUSAerothonBackend)
+![GitHub forks](https://img.shields.io/github/forks/anuragdw710/AIRBUSAerothonBackend)
+
+
+
 ## Project Links
 - [Frontend URL](https://github.com/altyon-get/flight-dashboard)
 - [Backend URL](https://github.com/anuragdw710/AIRBUSAerothonBackend)
