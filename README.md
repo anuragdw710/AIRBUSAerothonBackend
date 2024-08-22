@@ -9,7 +9,7 @@
 ## Project Links
 - [Frontend URL](https://github.com/altyon-get/flight-dashboard)
 - [Backend URL](https://github.com/anuragdw710/AIRBUSAerothonBackend)
-- [Live ULR](https://aeronavigator.vercel.app/)
+- [Live URL](https://aeronavigator.vercel.app/)
 - [Demo URL](https://drive.google.com/drive/folders/1br_PotmnpvmjXB-ZQgdEObXPrJHmRIoU?usp=sharing)
 
 
